@@ -1,0 +1,14 @@
+[localhost]
+localhost ansible_connection=local ansible_python_interpreter=python2
+
+[server_host]
+server152 ansible_host=192.168.2.152
+server153 ansible_host=192.168.2.153
+
+[server_host:vars]
+ansible_python_interpreter=python2
+ansible_connection=ssh
+ansible_user=root
+ansible_port=22
+#ansible_ssh_pass=password
+#ansible_ssh_private_key_file=your_private_key

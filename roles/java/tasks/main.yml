@@ -1,0 +1,4 @@
+---
+
+- name: install jdk packages
+  apt: name=openjdk-8-jdk:amd64 state=present update_cache=yes

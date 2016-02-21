@@ -1,0 +1,4 @@
+---
+
+- name: install supervisor
+  apt: name=filebeat state=present install_recommends=False

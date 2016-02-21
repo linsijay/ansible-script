@@ -1,0 +1,25 @@
+---
+
+- name: add elasticsearch key
+  apt_key: url=https://{{ logstash_key_repository }} id={{ logstash_key_id }} state=present
+
+- name: creat logstash repository
+  apt_repository: repo='deb http://{{ logstash_repository }}/{{ logstash_version }}/debian stable main' state=present update_cache=yes
+
+- name: install logstash {{ logstash_version }}
+  apt: name=logstash state=present install_recommends=False
+
+- name: configure logstash
+  copy: src={{ item }} dest=/etc/logstash/conf.d/{{ item }} owner=root group=root mode=0644
+  with_items:
+    - '02-beats-input.conf'
+    - '10-syslog-filter.conf'
+    - '30-elasticsearch-output.conf'
+  notify:
+    - restart logstash
+
+- name: start logstash
+  service: name=logstash state=started enabled=True
+  
+- name: set start level
+  command: update-rc.d logstash defaults 96 9

@@ -1,0 +1,29 @@
+---
+
+- name: add elasticsearch key
+  apt_key: url=https://{{ kibana_key_repository }} id={{ kibana_key_id }} state=present
+
+- name: creat elasticsearch repository
+  apt_repository: repo='deb http://{{ kibana_repository }}/{{ kibana_version }}/debian stable main' state=present update_cache=yes
+
+- name: install kibana {{ kibana_version }}
+  apt: name=kibana state=present install_recommends=False
+
+- name: divert original config files
+  command: dpkg-divert --package kibana --quiet --local --divert /opt/kibana/config/kibana.yml.dpkg-divert --rename /opt/kibana/config/kibana.yml
+
+- name: configure kibana
+  template: src=kibana.yml.j2 dest=/opt/kibana/config/kibana.yml owner=root group=root mode=0664
+  notify:
+    - restart kibana
+
+- name: start kibana
+  service: name=kibana state=started enabled=True
+  
+- name: set start level
+  command: update-rc.d kibana defaults 96 9
+
+- name: config nginx
+  template: src=nginx_kibana.conf.j2 dest=/etc/nginx/conf.d/kibana.conf owner=root group=root mode=0644
+  notify:
+    - restart nginx

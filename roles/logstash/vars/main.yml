@@ -1,0 +1,7 @@
+---
+
+# apt repo information
+logstash_key_repository: 'packages.elastic.co/GPG-KEY-elasticsearch'
+logstash_key_id: 'D88E42B4'
+logstash_repository: 'packages.elastic.co/logstash'
+logstash_version: '2.2'

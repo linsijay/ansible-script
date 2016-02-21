@@ -1,0 +1,14 @@
+---
+
+# apt repo information
+kibana_key_repository: 'packages.elastic.co/GPG-KEY-elasticsearch'
+kibana_key_id: 'D88E42B4'
+kibana_repository: 'packages.elastic.co/kibana'
+kibana_version: '4.4'
+
+# kibana-network
+kibana_host: '127.0.0.1'
+kibana_port: 5601
+kibana_maxpayloadbytes: 1048576
+kibana_elasticsearch_url: 'http://127.0.0.1:9200'
+kibana_nginx_port: 8090

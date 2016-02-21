@@ -1,0 +1,18 @@
+---
+
+# ansible variables
+ansible_base_path: .
+ansible_roles_path: "{{ ansible_base_path }}/roles"
+
+# ntp variables
+ntp_server_address: tw.pool.ntp.org
+
+# timezone
+timezone_value: "Asia/Taipei"
+
+# locale
+locale_value: en_US.UTF-8
+
+# apt variables
+#apt_server_address: 192.168.2.34
+

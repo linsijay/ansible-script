@@ -1,0 +1,12 @@
+---
+
+# apt repo information
+filebeat_key_repository: 'packages.elastic.co/GPG-KEY-elasticsearch'
+filebeat_key_id: 'D88E42B4'
+filebeat_repository: 'packages.elastic.co/beats'
+
+# monitor files path
+filebeat_files_path: ['/var/log/nginx/*', '/var/log/auth.log', '/var/log/syslog']
+filebeat_document_type: 'syslog'
+filebeat_bulk_max_size: 1024
+elasticsearch_server: '127.0.0.1:5044'

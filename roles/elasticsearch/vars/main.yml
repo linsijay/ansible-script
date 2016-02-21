@@ -1,0 +1,49 @@
+---
+
+# apt repo information
+elasticsearch_key_url: 'packages.elastic.co/GPG-KEY-elasticsearch'
+elasticsearch_key_id: 'D88E42B4'
+elasticsearch_repository: 'packages.elastic.co/elasticsearch'
+elasticsearch_version: '2x'
+
+# default-memory
+elasticsearch_memory_heap_size_multiplier: 0.5
+elasticsearch_memory_heap_size: '{{ (ansible_memtotal_mb | int * elasticsearch_memory_heap_size_multiplier) | round | int }}m'
+elasticsearch_memory_locked_size: 'unlimited'
+
+# default-filesystem
+elasticsearch_fs_max_open_files: 65535
+
+# default-Java OPTS
+elasticsearch_fs_java_opts: '-Djava.net.preferIPv4Stack=true'
+
+# elasticsearch-cluster
+elasticsearch_cluster_name: 'mycluster'
+
+# elasticsearch-node
+elasticsearch_node_name: '{{ elasticsearch_cluster_name }}-node-1'
+elasticsearch_node_master: ''
+elasticsearch_node_data: ''
+
+# elasticsearch-rack
+elasticsearch_rack_name: ''
+
+# elasticsearch-memory
+elasticsearch_mlockall: false
+
+# elasticsearch-network
+elasticsearch_network_host: '0.0.0.0'
+elasticsearch_network_port: '9200'
+
+# elasticsearch-discovery
+elasticsearch_discovery_unicast_hosts: []
+
+# elasticsearch-various
+elasticsearch_max_local_storage_nodes: 1
+
+# elasticsearch-index
+elasticsearch_number_of_shards: 3
+elasticsearch_number_of_replicas: 1
+
+# elasticsearch-plugin
+elasticsearch_plugins: ['marvel.agent.enabled: false']

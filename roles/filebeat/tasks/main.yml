@@ -1,0 +1,24 @@
+---
+
+- name: add elasticsearch key
+  apt_key: url=https://{{ filebeat_key_repository }} id={{ filebeat_key_id }} state=present
+
+- name: creat filebeat repository
+  apt_repository: repo='deb http://{{ filebeat_repository }}/apt stable main' state=present update_cache=yes
+
+- name: install filebeat
+  apt: name=filebeat state=present install_recommends=False
+
+- name: divert original config files
+  command: dpkg-divert --package filebeat --quiet --local --divert /etc/filebeat/filebeat.yml.dpkg-divert --rename /etc/filebeat/filebeat.yml
+
+- name: configure filebeat
+  template: src=filebeat.yml.j2 dest=/etc/filebeat/filebeat.yml owner=root group=root mode=0644
+  notify:
+    - restart filebeat
+
+- name: start filebeat
+  service: name=filebeat state=started enabled=True
+  
+- name: set start level
+  command: update-rc.d filebeat defaults 96 9

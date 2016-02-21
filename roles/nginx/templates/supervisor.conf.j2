@@ -1,0 +1,7 @@
+[program:nginx]
+command=nginx
+process_name=%(program_name)s
+autostart=true
+autorestart=true
+startsecs=5
+minfds=20480

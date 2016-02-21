@@ -1,0 +1,41 @@
+---
+
+- name: clean apt caches
+  shell: apt-get autoclean
+
+- name: install basic tool
+  apt: name={{ item }} state=present update_cache=yes
+  with_items:
+    - tree
+    - htop
+    - tmux
+    - ntpdate
+    - openssh-client
+    - openssh-server
+    - openssh-sftp-server
+
+- name: configure kernel parameters
+  sysctl: name={{ item.name }} value={{ item.value }} state=present sysctl_set=yes reload=yes
+  with_items:
+    - { name: 'fs.file-max', value: 32768 }
+    - { name: 'kernel.pid_max', value: 10240 }
+
+- name: stop iptables service
+  service: name=ufw state=stopped enabled=no
+
+- name: sync time
+  shell: ntpdate {{ ntp_server_address }}
+
+- name: update BIOS time
+  shell: hwclock -w
+
+- name: configure ntp into crontab
+  template: src=ntp_update.j2 dest=/etc/cron.weekly/ntp_update owner=root group=root mode=0755
+  
+- name: set timezone variables
+  template: src=timezone.j2 dest=/etc/timezone owner=root group=root mode=0644
+  notify:
+    - update timezone
+
+- name: set locale
+  command: update-locale LANG={{ locale_value }} LC_ALL=$locale
