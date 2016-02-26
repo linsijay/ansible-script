@@ -4,7 +4,7 @@
 elasticsearch_key_url: 'packages.elastic.co/GPG-KEY-elasticsearch'
 elasticsearch_key_id: 'D88E42B4'
 elasticsearch_repository: 'packages.elastic.co/elasticsearch'
-elasticsearch_version: '2x'
+elasticsearch_version: '2.x'
 
 # default-memory
 elasticsearch_memory_heap_size_multiplier: 0.5
