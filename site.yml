@@ -3,4 +3,4 @@
 - hosts: localhost
   serial: 1
   roles:
-    - command
+    - common

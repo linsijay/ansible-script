@@ -1,0 +1,22 @@
+---
+
+- name: Check gitlab container status
+  shell: "docker ps -a | grep '{{ app_name }}-server' | cat"
+  register: server_container_status
+
+- name: Remove gitlab container with same name
+  command: docker rm {{ app_name }}-server
+  when: server_container_status.stdout.find('Exited ') != -1
+  register: server_container_removed
+
+- name: Start new gitlab container
+  command: >  
+    docker run -d 
+      --name {{ app_name }}-server
+      -h {{ gitlab_hostname }}
+      -v {{ gitlab_data_container_volume_config }}:/etc/gitlab
+      -v {{ gitlab_data_container_volume_logs }}:/var/log/gitlab
+      -v {{ gitlab_data_container_volume_data }}:/var/opt/gitlab
+      -p {{ gitlab_https_port }}:443 -p {{ gitlab_http_port }}:80 -p {{ gitlab_ssh_port }}:22
+      {{ gitlab_docker_image }}
+  when: (server_container_status.stdout.find('Up ') == -1)

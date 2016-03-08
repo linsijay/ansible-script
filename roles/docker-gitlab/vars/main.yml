@@ -1,0 +1,12 @@
+---
+
+app_name: 'docker-gitlab'
+gitlab_hostname: 'gitlab.server.edc'
+gitlab_docker_image: 'gitlab/gitlab-ce'
+gitlab_http_port: 8882
+gitlab_ssh_port: 8822
+gitlab_https_port: 8443
+gitlab_data_container_volume_config: '/opt/gitlab-data/config'
+gitlab_data_container_volume_logs: '/opt/gitlab-data/logsg'
+gitlab_data_container_volume_data: '/opt/gitlab-data/data'
+
