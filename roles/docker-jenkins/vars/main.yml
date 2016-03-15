@@ -1,0 +1,8 @@
+---
+
+app_name: 'docker-jenkins'
+node_name: 'node1'
+jenkins_docker_image: 'jenkins'
+jenkins_http_port: 8884
+jenkins_agent_port: 50001
+jenkins_data_container_volume: '/opt/jenkins-data'
