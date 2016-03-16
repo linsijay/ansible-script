@@ -1,0 +1,8 @@
+---
+
+app_name: docker-postgres
+postgres_docker_image: postgres:latest
+postgres_data_container_volume: '/opt/postgres-data'
+postgres_password: 'aceratedc'
+postgres_private_port: 5432
+
