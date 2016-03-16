@@ -9,6 +9,9 @@
   when: server_container_status.stdout.find('Exited ') != -1
   register: server_container_removed
 
+- name: create new directory on the host for persistence data using
+  file: path={{ jira_data_container_volume }} state=directory recurse=yes owner=daemon group=daemon
+
 - name: Start new jira container
   command: >  
     docker run -d 

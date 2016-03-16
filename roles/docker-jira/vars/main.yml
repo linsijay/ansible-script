@@ -3,4 +3,4 @@
 app_name: 'docker-jira'
 jira_docker_image: 'cptactionhank/atlassian-jira-software'
 jira_http_port: 8883
-jira_data_container_volume: '/opt/jira-data'
+jira_data_container_volume: '/opt/jira-data/jira-home'
