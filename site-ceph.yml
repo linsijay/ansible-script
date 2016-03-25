@@ -1,0 +1,6 @@
+---
+
+- name: ceph cluster
+  hosts: ceph_cluster
+  roles:
+    - ceph

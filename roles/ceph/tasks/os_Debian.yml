@@ -1,0 +1,35 @@
+---
+
+- name: Update APT package cache
+  apt: update_cache=yes
+
+- name: Upgrade APT to the lastest packages
+  apt: upgrade=yes
+
+- name: Install required packages
+  apt: pkg={{ item }} state=installed
+  with_items: required_packages
+
+- name: Change root password
+  user: name=root password={{ root_password }}
+
+- name: Add deploy user
+  user: name={{ deploy_user_name }} password="{{ deploy_password }}" shell=/bin/bash
+
+- name: Add authorized keys for deploy user
+  authorized_key: user={{ deploy_user_name }} key="{{ lookup('file', item) }}"
+  with_items: deploy_public_keys 
+
+- name: Add deploy user to sudoers
+  lineinfile: dest=/etc/sudoers
+              regexp="{{ deploy_user_name }} ALL"
+              line="{{ deploy_user_name }} ALL=(ALL) NOPASSWD:ALL"
+              state=present
+              validate="visudo -cf %s"
+
+- name: Disallow root SSH access
+  lineinfile: dest=/etc/ssh/sshd_config
+              regexp="^PermitRootLogin"
+              line="PermitRootLogin no"
+              state=present
+  notify: Restart ssh
