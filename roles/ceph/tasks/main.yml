@@ -1,5 +1,5 @@
 ---
 
 - name: include debian
-  include: os_{{ ansible_os_family }}.xml
+  include: os_{{ ansible_os_family }}.yml
   when: ansible_os_family == 'Debian'

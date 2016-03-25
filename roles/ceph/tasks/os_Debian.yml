@@ -4,11 +4,14 @@
   apt: update_cache=yes
 
 - name: Upgrade APT to the lastest packages
-  apt: upgrade=yes
+  shell: apt-get upgrade
 
 - name: Install required packages
-  apt: pkg={{ item }} state=installed
-  with_items: required_packages
+  apt: name={{ item }} state=present install_recommends=True
+  with_items:
+    - sudo
+    - vim
+    - tree
 
 - name: Change root password
   user: name=root password={{ root_password }}
@@ -16,9 +19,15 @@
 - name: Add deploy user
   user: name={{ deploy_user_name }} password="{{ deploy_password }}" shell=/bin/bash
 
+- name: Add authorized keys for root user
+  authorized_key: user={{ deploy_user_name }} key="{{ lookup('file', item) }}"
+  with_items:
+    - /root/.ssh/id_rsa.pub  
+
 - name: Add authorized keys for deploy user
   authorized_key: user={{ deploy_user_name }} key="{{ lookup('file', item) }}"
-  with_items: deploy_public_keys 
+  with_items:
+    - /home/deploy/.ssh/id_rsa.pub   
 
 - name: Add deploy user to sudoers
   lineinfile: dest=/etc/sudoers

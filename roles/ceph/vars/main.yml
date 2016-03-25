@@ -1,13 +1,9 @@
 ---
 
-root_password: 'root@root'
-deploy_password: 'deploy@deploy'
+root_password: "$6$TxbwjkNz$MZNa9iUx6bJOXIj7GY.f/.SrF.DXkHyx3aAuPYZWz1/JbKf5zqbUrKOa2yn2D6Sb0.0YQYbAMqJAG.hkPEnaK1"
+deploy_password: "$6$7BVdhS2reRZ$cO3S4.s/RZ5m4c6lEWuLO9K8vCI9/EtS2X7DOted9gc5nZqaDw22gFF29SN26d1202MdNeFT./WkyDY.uG1Ue."
 deploy_user_name: deploy
-deploy_public_keys:
-  - ~/.ssh/id_rsa.pub
 
-required_packages:
-  - sudo
-  - vim
-  - tree
-#  - logwatch
+# mkpasswd --method=SHA-512
+# roor@root
+# deploy@deploy
