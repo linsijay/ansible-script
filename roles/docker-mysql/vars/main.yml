@@ -1,8 +1,0 @@
----
-
-app_name: docker-mysql
-mysql_docker_image: mysql:latest
-mysql_data_container_volume: '/opt/mysql-data'
-mysql_password: 'aceratedc'
-mysql_private_port: 3306
-

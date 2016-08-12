@@ -13,15 +13,82 @@ ansible_port=22
 #ansible_ssh_pass=password
 #ansible_ssh_private_key_file=your_private_key
 
-[ceph_cluster]
-ceph-m ansible_host=192.168.220.128
-ceph-1 ansible_host=192.168.220.130
-ceph-2 ansible_host=192.168.220.131
+#
+# ceph_cluster
+#
+[ceph_admin]
+ceph-a1 ansible_host=192.168.220.132
+
+[ceph_node]
+ceph-n1 ansible_host=192.168.220.130
+ceph-n2 ansible_host=192.168.220.131
+ceph-m1 ansible_host=192.168.220.128
+
+[ceph_cluster:children]
+ceph_admin
+ceph_node
 
 [ceph_cluster:vars]
 ansible_python_interpreter=python2
 ansible_connection=ssh
-ansible_user=root
 ansible_port=22
-ansible_ssh_pass=password
+#ansible_ssh_pass=password (not recommended, should use --ask-pass)
 #ansible_ssh_private_key_file=your_private_key
+ansible_user=jess
+ansible_become=yes
+ansible_become_method=su
+ansible_become_user=root
+#ansible_become_pass=password (not recommended, should use --ask-become-pass)
+
+#
+# swarm_cluster
+#
+[consul_server]
+consul ansible_host=192.168.220.149
+
+[swarm_manager]
+manager ansible_host=192.168.220.150
+
+[swarm_nodes]
+node1 ansible_host=192.168.220.151
+node2 ansible_host=192.168.220.152
+node3 ansible_host=192.168.220.153
+
+[swarm_cluster:children]
+consul_server
+swarm_manager
+swarm_nodes
+
+[swarm_cluster:vars]
+ansible_python_interpreter=python2.7
+ansible_connection=ssh
+ansible_port=22
+#ansible_ssh_pass=password (not recommended, should use --ask-pass)
+#ansible_ssh_private_key_file=your_private_key
+ansible_user=jess
+ansible_become=yes
+ansible_become_method=su
+ansible_become_user=root
+#ansible_become_pass=password (not recommended, should use --ask-become-pass)
+
+
+[hyper-converged-leader]
+G1-1 ansible_host=10.14.1.251
+
+[hyper-converged-node]
+G1-2 ansible_host=10.14.1.252
+
+[hyper-converged-host:children]
+hyper-converged-leader
+hyper-converged-node
+
+[hyper-converged-host:vars]
+ansible_python_interpreter=python2.7
+ansible_connection=ssh
+ansible_port=22
+ansible_user=superion
+ansible_ssh_pass=superion
+ansible_become=yes
+ansible_become_method=su
+ansible_become_user=root
+

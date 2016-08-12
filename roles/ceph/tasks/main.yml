@@ -1,5 +1,43 @@
 ---
 
-- name: include debian
-  include: os_{{ ansible_os_family }}.yml
+- name: include deploy sceipt for Debian
+  include: os_{{ ansible_os_family }}_deploy.yml
   when: ansible_os_family == 'Debian'
+
+- name: install ceph-deploy at the admin node
+  include: os_{{ ansible_os_family }}_install_ceph_admin_node.yml
+  when: inventory_hostname in groups["ceph_admin"]
+  
+- name: setup ceph at the common node
+  include: os_{{ ansible_os_family }}_install_ceph_node.yml
+  when: inventory_hostname in groups["ceph_node"]
+
+- name: remove public key in the tmp of host
+  file: path=/tmp/public_key.pub state=absent
+  delegate_to: localhost
+
+- name: install that Ceph requires additional third party libraries
+  apt: name={{ item }} state=present install_recommends=True
+  with_items:
+    - libaio1 
+    - libsnappy1
+    - libcurl3
+    - curl
+    - libgoogle-perftools4
+    - google-perftools
+    - libleveldb1
+
+- name: add hosts mapping into /etc/hosts
+  lineinfile:
+    dest: /etc/hosts
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  with_items:
+    - { regexp: '^192.168.220.132', line: '192.168.220.132 ceph-a1' }
+    - { regexp: '^192.168.220.128', line: '192.168.220.128 ceph-m1' }
+    - { regexp: '^192.168.220.130', line: '192.168.220.130 ceph-n1' }
+    - { regexp: '^192.168.220.131', line: '192.168.220.131 ceph-n2' }
+
+- name: deploy ceph to common nodes
+  include: os_{{ ansible_os_family }}_deploy_ceph.yml
+  when: inventory_hostname in groups["ceph_admin"]

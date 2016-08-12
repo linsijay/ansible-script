@@ -1,0 +1,13 @@
+---
+
+# docker listen ip address
+docker_network_address: '0.0.0.0'
+
+# enable overlay network
+enable_overlay_network: true
+
+# consul ip address
+consul_address: '10.14.1.251'
+
+# ceph public network
+ceph_public_network: '10.14.1.0/24'

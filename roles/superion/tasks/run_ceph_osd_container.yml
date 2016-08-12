@@ -1,0 +1,54 @@
+---
+
+- name: create bootstrap directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "64045"
+    group: "64045"
+    mode: "0755"
+  with_items:
+    - /var/lib/ceph/osd
+
+- name: prepare new ceph container
+  command: >
+    docker run -d -m 2048M --net=host --pid=host --privileged=true
+      --name "ceph-osd-prepare-{{ item | regex_replace('/', '') }}"
+      -v /etc/ceph:/etc/ceph
+      -v /var/lib/ceph/:/var/lib/ceph
+      -v /dev/:/dev/
+      -e OSD_DEVICE={{ item }}
+      -e OSD_FORCE_ZAP=1
+      -e "OSD_JOURNAL=/dev/sda3"
+      -e "CEPH_DAEMON=OSD_CEPH_DISK_PREPARE"
+      ceph/daemon:tag-build-master-jewel-ubuntu-14.04 osd
+  with_items:
+     - /dev/sdb
+#    - /dev/sdc
+
+- name: sleep 60 seconds
+  pause: seconds=60
+
+- name: Start new ceph container
+  command: >
+    docker run -d -m 2048M --net=host --pid=host --privileged=true
+      --name "ceph-osd-{{ item | regex_replace('/', '') }}"
+      -v /etc/ceph:/etc/ceph
+      -v /var/lib/ceph/:/var/lib/ceph
+      -v /etc/localtime:/etc/localtime
+      -v /etc/timezone:/etc/timezone
+      -v /dev/:/dev/
+      -e OSD_DEVICE={{ item }}
+      -e "OSD_JOURNAL=/dev/sda3"
+      -e "CEPH_DAEMON=OSD_CEPH_DISK_ACTIVATE"
+      ceph/daemon:tag-build-master-jewel-ubuntu-14.04 osd
+  with_items:
+     - /dev/sdb
+#    - /dev/sdc
+
+- name: Remove osd-prepare container
+  command: >
+    docker rm -fv "ceph-osd-prepare-{{ item | regex_replace('/', '') }}"
+  with_items:
+    - /dev/sdb
+#    - /dev/sdc

@@ -1,0 +1,26 @@
+---
+
+- name: Check consul container status
+  shell: "docker ps -a | grep 'consul-server' | cat"
+  register: server_container_status
+
+- name: Remove consul container with same name
+  command: docker rm -v consul-server
+  when: server_container_status.stdout.find('Exited ') != -1
+  register: server_container_removed
+
+- name: create new directory on the host for persistence data using
+  file: path=/opt/container/volume/consul state=directory recurse=yes owner=daemon group=daemon
+
+- name: Start new consul container
+  command: >  
+    docker run -d 
+      --name consul-server
+      --restart=always 
+      -h consul
+      -p 8400:8400
+      -p 8500:8500
+      -p 8600:53/udp
+      progrium/consul
+      -server -bootstrap -ui-dir /ui
+  when: (server_container_status.stdout.find('Up ') == -1)

@@ -1,0 +1,22 @@
+---
+
+- name: Check swarm container status
+  shell: "docker ps -a | grep 'swarm-node' | cat"
+  register: server_container_status
+
+- name: Remove swarm container with same name
+  command: docker rm -fv swarm-node
+  when: server_container_status.stdout.find('Exited ') != -1
+  register: server_container_removed
+
+- name: Start new swarm container
+  command: >  
+    docker run -d -m 512M
+      --name swarm-node
+      --restart=always
+      -v /etc/localtime:/etc/localtime
+      -v /etc/timezone:/etc/timezone
+      swarm:1.2.4 join
+      --advertise={{ ansible_host }}:2375
+      consul://{{ consul_address }}:8500/v1/kv/swarm
+  when: (server_container_status.stdout.find('Up ') == -1)

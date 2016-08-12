@@ -1,0 +1,4 @@
+---
+
+- name: create ceph directory
+  file: path=/opt/ceph-cluster state=directory owner={{ ceph_user_name }} group={{ ceph_user_name }}

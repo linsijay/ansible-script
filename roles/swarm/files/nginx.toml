@@ -1,0 +1,13 @@
+[template]
+# retrive new value from http://swarm_manager:8500/v1/kv/webcluster
+keys = [ "/webcluster/" ]
+
+# template for generating new configuration
+src = "nginx.template"
+dest = "/etc/nginx/sites-available/default"
+owner = "root"
+mode = "0644"
+
+# action after generating new configuration
+#check_cmd = "/usr/sbin/nginx -t -c {{.src}}"
+reload_cmd = "/usr/sbin/service nginx restart"

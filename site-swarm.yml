@@ -1,0 +1,6 @@
+---
+
+- name: swarm cluster
+  hosts: swarm_cluster
+  roles:
+    - swarm

@@ -11,9 +11,27 @@
 
 - name: creat docker repository
   apt_repository: repo='deb https://{{ docker_repository }} ubuntu-{{ ansible_distribution_release }} main' state=present update_cache=yes
+  
+- name: install linux-image-extra
+  apt: name="linux-image-extra-{{ ansible_kernel }}" state=present
 
 - name: install docker
   apt: name=docker-engine state=present
 
 - name: start docker
   service: name=docker state=started enabled=True
+
+- name: Adjust memory and swap accounting
+  lineinfile:
+    dest: /etc/default/grub
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    backup: yes
+  with_items:
+    - { regexp: '^GRUB_CMDLINE_LINUX="', line: 'GRUB_CMDLINE_LINUX="cgroup_enable=memory swapaccount=1"' }
+
+- name: update grub
+  command: update-grub
+  notify:
+    - restart server
+    - wait for server to restart

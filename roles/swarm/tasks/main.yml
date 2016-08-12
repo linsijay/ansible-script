@@ -1,0 +1,32 @@
+---
+
+- name: run consul when node is Consul role
+  include: run_consul_container.yml
+  when: inventory_hostname in groups["consul_server"]
+
+- name: sleep 3 seconds
+  pause: seconds=3
+  
+- name: enable ip connection when docker_network_address is defined
+  include: both_enable_ip_connection.yml
+  when: ( docker_network_address is defined ) and ( inventory_hostname not in groups["consul_server"] )
+
+- name: setup node overlay network
+  include: node_enable_overlay_network.yml
+  when: enable_overlay_network and inventory_hostname in groups["swarm_nodes"]
+
+- name: setup manager overlay network
+  include: manager_enable_overlay_network.yml
+  when: enable_overlay_network and inventory_hostname in groups["swarm_manager"]
+
+#- name: install more tools when node is Manager role
+#  include: manager_install_more_tool.yml
+#  when: inventory_hostname in groups["swarm_manager"]
+
+- name: run swarm manager when node is Manager role
+  include: manager_run_swarm_manager_container.yml
+  when: inventory_hostname in groups["swarm_manager"]
+
+- name: run swarm when node is Docker Node role
+  include: node_run_swarm_container.yml
+  when: inventory_hostname in groups["swarm_nodes"]

@@ -1,0 +1,38 @@
+#! /bin/sh
+### BEGIN INIT INFO
+# Provides:          consul
+# Required-Start:    $syslog $remote_fs
+# Required-Stop:     $syslog $remote_fs
+# Default-Start:     2 3 4 5
+# Default-Stop:
+# Short-Description: script to start/stop consul
+### END INIT INFO
+
+
+PATH=/sbin:/usr/sbin:/bin:/usr/bin
+
+do_start() {
+    /opt/consul/consul agent -advertise={{ ansible_host }} -config-dir=/opt/consul/etc/{{ consul_type }} > /dev/null &
+}
+
+do_stop() {
+    killall consul
+}
+
+case "$1" in
+    start)
+	do_start
+        ;;
+    restart)
+        do_stop
+        do_start
+        ;;
+    stop)
+        do_stop
+        ;;
+    *)
+        echo "Usage: $0 start|stop|restart" >&2
+        exit 3
+        ;;
+esac
+

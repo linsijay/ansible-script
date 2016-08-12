@@ -1,0 +1,24 @@
+---
+
+- name: Check swarm container status
+  shell: "docker ps -a | grep 'swarm-server' | cat"
+  register: server_container_status
+
+- name: Remove swarm container with same name
+  command: docker rm -v swarm-server
+  when: server_container_status.stdout.find('Exited ') != -1
+  register: server_container_removed
+
+- name: create new directory on the host for persistence data using
+  file: path=/opt/container/volume/swarm state=directory recurse=yes owner=daemon group=daemon
+
+- name: Start new swarm container
+  command: >  
+    docker run -d 
+      --name swarm-server
+      --restart=always 
+      -h swarm-manager
+      -p 2376:2375
+      swarm manage
+      consul://{{ hostvars.consul.ansible_host }}:8500/v1/kv/swarm
+  when: (server_container_status.stdout.find('Up ') == -1)

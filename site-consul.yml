@@ -1,0 +1,6 @@
+---
+
+- name: consul
+  hosts: hyper-converged-host
+  roles:
+    - consul

@@ -13,6 +13,10 @@
     - openssh-client
     - openssh-server
     - openssh-sftp-server
+    - unzip
+    - jq
+    #- gcc
+    #- make
 
 - name: configure kernel parameters
   sysctl: name={{ item.name }} value={{ item.value }} state=present sysctl_set=yes reload=yes
@@ -36,6 +40,3 @@
   template: src=timezone.j2 dest=/etc/timezone owner=root group=root mode=0644
   notify:
     - update timezone
-
-- name: set locale
-  command: update-locale LANG={{ locale_value }} LC_ALL=$locale

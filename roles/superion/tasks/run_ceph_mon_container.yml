@@ -1,0 +1,96 @@
+---
+- name: install ceph-common
+  apt: name={{ item }} state=present update_cache=no
+  with_items:
+    - ceph-common
+    - rbd-nbd
+
+- name: create bootstrap directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "64045"
+    group: "64045"
+    mode: "0755"
+  with_items:
+    - /etc/ceph/
+    - /var/lib/ceph/bootstrap-osd
+    - /var/lib/ceph/bootstrap-mds
+    - /var/lib/ceph/bootstrap-rgw
+
+- name: setup kernel.pid_max as 4194303
+  sysctl: name="kernel.pid_max" value=4194303 sysctl_set=yes
+
+- name: configure kernel parameters
+  sysctl: name={{ item.name }} value={{ item.value }} state=present sysctl_set=yes reload=yes
+  with_items:
+    - { name: 'fs.file-max', value: 4194303 }
+    - { name: 'kernel.pid_max', value: 26234859 }
+    - { name: 'vm.zone_reclaim_mode', value: 0 }
+    - { name: 'vm.vfs_cache_pressure', value: 50 }
+
+- name: Start new ceph monitor container at leader side
+  command: >
+    docker run -d -m 1G --net=host
+      --name ceph-mon
+      --restart=always
+      -v /etc/localtime:/etc/localtime
+      -v /etc/timezone:/etc/timezone
+      -v /etc/ceph:/etc/ceph
+      -v /var/lib/ceph/:/var/lib/ceph
+      -e MON_IP={{ ansible_host }}
+      -e MON_IP_AUTO_DETECT=4
+      -e CEPH_PUBLIC_NETWORK={{ ceph_public_network }}
+      ceph/daemon:tag-build-master-jewel-ubuntu-14.04 mon
+  when: inventory_hostname in groups["hyper-converged-leader"]
+
+- name: archive ceph key and config
+  command: >
+    /bin/tar zcPf /tmp/temp.tgz
+    /etc/ceph/ceph.client.admin.keyring 
+    /etc/ceph/ceph.conf 
+    /etc/ceph/ceph.mon.keyring 
+    /etc/ceph/monmap
+    /var/lib/ceph/bootstrap-mds
+    /var/lib/ceph/bootstrap-osd
+    /var/lib/ceph/bootstrap-rgw
+  when: inventory_hostname in groups["hyper-converged-leader"]
+
+- name: copy ceph key & config to nodes from leader to local
+  fetch: src=/tmp/temp.tgz dest=/tmp/temp.tgz flat=no
+  when: inventory_hostname in groups["hyper-converged-leader"]
+
+- name: copy ceph key & config to nodes from local to remote node
+  copy: src=/tmp/temp.tgz dest=/tmp/
+  when: inventory_hostname in groups["hyper-converged-node"]
+
+- name: unarchive ceph key and config
+  command: >
+    /bin/tar zxPf /tmp/temp.tgz/G1-1/tmp/temp.tgz
+  when: inventory_hostname in groups["hyper-converged-node"]
+
+- name: remove temp file
+  file: path=/tmp/temp.tgz state=absent
+
+- name: Start new ceph monitor container at node side
+  command: >
+    docker run -d -m 1G --net=host
+      --name ceph-mon
+      --restart=always
+      -v /etc/localtime:/etc/localtime
+      -v /etc/timezone:/etc/timezone
+      -v /etc/ceph:/etc/ceph
+      -v /var/lib/ceph/:/var/lib/ceph
+      -e MON_IP={{ ansible_host }}
+      -e MON_IP_AUTO_DETECT=4
+      -e CEPH_PUBLIC_NETWORK={{ ceph_public_network }}
+      ceph/daemon:tag-build-master-jewel-ubuntu-14.04 mon
+  when: inventory_hostname in groups["hyper-converged-node"]
+  
+- name: change replication size to 1
+  command: >
+    docker exec ceph-mon ceph osd pool set rbd size 1
+  
+- name: change replication min size to 1
+  command: >
+    docker exec ceph-mon ceph osd pool set rbd min_size 1

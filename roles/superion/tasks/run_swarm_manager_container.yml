@@ -1,0 +1,22 @@
+---
+
+- name: Check swarm container status
+  shell: "docker ps -a | grep 'swarm-server' | cat"
+  register: server_container_status
+
+- name: Remove swarm container with same name
+  command: docker rm -fv swarm-server
+  when: server_container_status.stdout.find('Exited ') != -1
+  register: server_container_removed
+
+- name: Start new swarm container
+  command: >  
+    docker run -d -m 512M
+      --name swarm-server
+      --restart=always
+      -v /etc/localtime:/etc/localtime
+      -v /etc/timezone:/etc/timezone
+      -p 2376:2375
+      swarm:1.2.4 manage
+      consul://{{ consul_address }}:8500/v1/kv/swarm
+  when: (server_container_status.stdout.find('Up ') == -1)

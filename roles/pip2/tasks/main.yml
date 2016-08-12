@@ -1,10 +1,4 @@
 ---
-
-- name: install compiler tool
-  apt: name={{ item }} state=present update_cache=yes
-  with_items:
-    - gcc
-    - make
  
 - name: download get-pip.py
   get_url: url=https://bootstrap.pypa.io/get-pip.py dest=/tmp/get-pip.py mode=0400
@@ -14,9 +8,6 @@
   
 - name: upgrade pip
   command: pip2 install -U pip
-  
-- name: install pycrypto via pip
-  command: pip2 install pycrypto
 
 - name: remove get-pip.py
   file: path=/tmp/get-pip.py state=absent

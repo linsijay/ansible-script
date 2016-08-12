@@ -1,0 +1,16 @@
+---
+
+- name: create docker.service.d directory
+  file: path=/etc/systemd/system/docker.service.d state=directory mode=0755
+  
+- name: override systemd to enable network connection
+  copy: src=override.conf dest=/etc/systemd/system/docker.service.d/override.conf owner=root group=root mode=0644
+
+- name: add network address for enabling network connection
+  lineinfile:
+    dest: /etc/default/docker
+    regexp: '^DOCKER_OPTS='
+    line: 'DOCKER_OPTS="-H tcp://{{ docker_network_address }}:2375"'
+  notify:
+    - reload systemd
+    - restart docker systemd

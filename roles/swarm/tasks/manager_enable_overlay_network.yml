@@ -1,0 +1,12 @@
+---
+
+- name: add overlay network parameter to docker daemon
+  lineinfile:
+    dest: /etc/default/docker
+    backrefs: yes
+    state: present
+    regexp: '(^DOCKER_OPTS="-H tcp://\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}:\d{1,5})"$'
+    line: '\1 --cluster-store=consul://{{ hostvars.consul.ansible_host }}:8500 --cluster-advertise={{ ansible_host }}:2376"'
+  notify:
+    - reload systemd
+    - restart docker systemd

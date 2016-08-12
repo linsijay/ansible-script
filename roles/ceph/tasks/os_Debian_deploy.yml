@@ -1,0 +1,45 @@
+---
+
+- name: update apt package cache
+  apt: update_cache=yes
+
+- name: upgrade apt to the lastest packages
+  shell: apt-get -y upgrade
+
+- name: install required packages
+  apt: name={{ item }} state=present install_recommends=True
+  with_items:
+    - sudo
+    - vim
+    - tree
+    - ntp
+
+- name: change root password
+  user: name=root password={{ root_password }}
+
+- name: add deploy user
+  user: name={{ deploy_user_name }} password="{{ deploy_password }}" shell=/bin/bash
+
+- name: add authorized keys for root user
+  authorized_key: user={{ deploy_user_name }} key="{{ lookup('file', item) }}"
+  with_items:
+    - /root/.ssh/id_rsa.pub  
+
+- name: add authorized keys for deploy user
+  authorized_key: user={{ deploy_user_name }} key="{{ lookup('file', item) }}"
+  with_items:
+    - /home/deploy/.ssh/id_rsa.pub   
+
+- name: add deploy user to sudoers
+  lineinfile: dest=/etc/sudoers
+              regexp="{{ deploy_user_name }} ALL"
+              line="{{ deploy_user_name }} ALL=(ALL) NOPASSWD:ALL"
+              state=present
+              validate="visudo -cf %s"
+
+- name: disallow root SSH access
+  lineinfile: dest=/etc/ssh/sshd_config
+              regexp="^PermitRootLogin"
+              line="PermitRootLogin no"
+              state=present
+  notify: Restart ssh

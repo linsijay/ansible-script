@@ -7,3 +7,8 @@ deploy_user_name: deploy
 # mkpasswd --method=SHA-512
 # roor@root
 # deploy@deploy
+
+ceph_release_version: hammer
+debian_release_version: jessie
+ceph_user_name: ceph
+ceph_password: $6$G1l80ZG6VQ9N$2ZbD/BsTMb.AY0qAW.ytF3cBhjYRxBgWNEAl6KGP14eXaYuelDDGgUCwKNFjdEExEWVIReIOGvkDf.nJcK2WH1

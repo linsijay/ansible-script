@@ -1,0 +1,7 @@
+---
+
+# docker listen ip address
+docker_network_address: '0.0.0.0'
+
+# enable overlay network
+enable_overlay_network: true

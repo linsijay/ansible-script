@@ -1,0 +1,6 @@
+---
+
+- name: superion
+  hosts: hyper-converged-host
+  roles:
+    - superion

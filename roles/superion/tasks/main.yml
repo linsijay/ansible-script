@@ -1,0 +1,27 @@
+---
+  
+- name: enable ip connection when docker_network_address is defined
+  include: enable_ip_connection.yml
+  when: ( docker_network_address is defined )
+
+- name: setup node overlay network
+  include: enable_overlay_network.yml
+  when: enable_overlay_network
+
+- name: run swarm manager
+  include: run_swarm_manager_container.yml
+
+- name: sleep 5 seconds
+  pause: seconds=5
+
+- name: run swarm agent
+  include: run_swarm_container.yml
+
+- name: run ceph mon
+  include: run_ceph_mon_container.yml
+
+- name: sleep 5 seconds
+  pause: seconds=5
+
+- name: run ceph osd
+  include: run_ceph_osd_container.yml

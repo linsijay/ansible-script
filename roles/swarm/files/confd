@@ -1,0 +1,42 @@
+#! /bin/sh
+### BEGIN INIT INFO
+# Provides:          confd
+# Required-Start:    $all
+# Required-Stop:
+# Default-Start:     2 3 4 5
+# Default-Stop:
+# Short-Description: script to start/stop confd
+### END INIT INFO
+
+
+PATH=/sbin:/usr/sbin:/bin:/usr/bin
+
+drop_proc_by_cmd() {
+    cmd="$1"
+    kill -9 `ps -C $cmd --format pid --no-headers` 2> /dev/null
+}
+
+do_start() {
+    confd -interval 5 -backend consul -node 127.0.0.1:8500
+}
+
+do_stop() {
+    killall -15 confd
+}
+
+case "$1" in
+    start)
+	do_start
+        ;;
+    restart)
+        do_stop
+        do_start
+        ;;
+    stop)
+        do_stop
+        ;;
+    *)
+        echo "Usage: $0 start|stop|restart" >&2
+        exit 3
+        ;;
+esac

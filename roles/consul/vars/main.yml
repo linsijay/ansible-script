@@ -1,0 +1,8 @@
+---
+
+consul_folder: '/opt/consul'
+consul_version: '0.6.4'
+install_webui: true
+consul_type: 'leader'
+consul_key: 'F9qnXw67DLyCwDKzNMG0Kw=='
+consul_join_list: "10.14.1.251"

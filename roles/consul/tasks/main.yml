@@ -1,0 +1,94 @@
+---
+
+- name: create consul group
+  group:
+    name: "consul"
+    state: present
+    system: yes
+  register: consul_group_created
+
+- name: create consul user
+  user:
+    name: "consul"
+    group: "consul"
+    system: yes
+  when: consul_group_created|changed
+
+- name: create directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+    owner: "consul"
+    group: "consul"
+  with_items:
+    - "{{ consul_folder }}/tmp"
+    - "{{ consul_folder }}/data"
+    - "{{ consul_folder }}/etc"
+    - "{{ consul_folder }}/etc/leader"
+    - "{{ consul_folder }}/etc/node"
+    - "{{ consul_folder }}/webui"
+
+- name: download binary
+  get_url: url=https://releases.hashicorp.com/consul/{{ consul_version }}/consul_{{ consul_version }}_linux_amd64.zip dest={{ consul_folder }}/tmp/consul_{{ consul_version }}_linux_amd64.zip mode=0400
+  register: new_archive
+
+- name: download web ui
+  get_url: url=https://releases.hashicorp.com/consul/{{ consul_version }}/consul_{{ consul_version }}_web_ui.zip dest={{ consul_folder }}/tmp/consul_{{ consul_version }}_web_ui.zip mode=0400
+  register: new_web_archive
+  when: install_webui
+
+- name: unpackage binary
+  unarchive: src="{{ consul_folder }}/tmp/consul_{{ consul_version }}_linux_amd64.zip" dest="{{ consul_folder }}" copy=no
+  when: new_archive|changed
+
+- name: unpackage webUI package
+  unarchive: src="{{ consul_folder }}/tmp/consul_{{ consul_version }}_web_ui.zip" dest="{{ consul_folder }}/webui" copy=no
+  when: new_archive|changed and install_webui
+
+- name: copy consul init.d script
+  template:
+    src: "leader/consul.json.j2"
+    dest: "{{ consul_folder }}/etc/leader/consul.json"
+
+- name: copy consul init.d script
+  template:
+    src: "node/consul.json.j2"
+    dest: "{{ consul_folder }}/etc/node/consul.json"
+    
+- name: set ownership
+  file:
+    state: directory
+    path: "{{ consul_folder }}"
+    owner: "consul"
+    group: "consul"
+    recurse: yes
+
+- name: copy consul init.d script
+  template:
+    src: consul_init.j2
+    dest: /etc/init.d/consul
+    owner: "root"
+    group: "root"
+    mode: 0755
+  when: inventory_hostname in groups["hyper-converged-leader"]
+
+- set_fact:
+     consul_type: "node"
+  when: inventory_hostname in groups["hyper-converged-node"]
+
+- name: copy consul init.d script
+  template:
+    src: consul_init.j2
+    dest: /etc/init.d/consul
+    owner: "root"
+    group: "root"
+    mode: 0755
+  when: inventory_hostname in groups["hyper-converged-node"]
+
+
+- name: start consul
+  service: name=consul state=started enabled=True
+  
+- name: remove tmp file
+  shell: rm -rf {{ consul_folder }}/tmp/consul_{{ consul_version }}_*.zip

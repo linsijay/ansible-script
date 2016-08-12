@@ -1,8 +1,0 @@
----
-
-app_name: docker-wiki
-wiki_docker_image: 'synctree/mediawiki'
-wiki_http_port: 8881
-wiki_data_container_volume: '/opt/wiki-data'
-docker_mysql_name: docker-mysql-server
-
